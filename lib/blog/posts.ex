@@ -3,12 +3,21 @@ defmodule Blog.Posts do
   alias Blog.Repo
   alias Blog.Posts.Post
 
+  def get_post!(id) do
+    Repo.get!(Post, id)
+  end
+
   def list_posts() do
     Repo.all(Post)
   end
 
-  def get_post!(id) do
-    Repo.get!(Post, id)
+  def search_posts(term) do
+    query =
+      from p in Post,
+        where: like(p.title, ^"%#{term}%"),
+        order_by: [desc: p.inserted_at]
+
+    Repo.all(query)
   end
 
   def get_post_by_slug!(slug) do
