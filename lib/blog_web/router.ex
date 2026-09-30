@@ -21,8 +21,8 @@ defmodule BlogWeb.Router do
 
     live "/posts", PostLive.Index, :index
     live "/posts/new", PostLive.Index, :new
+    get "/posts/:slug", PostController, :show
     live "/posts/:slug/edit", PostLive.Index, :edit
-    live "/posts/:slug", PostLive.Show, :show
   end
 
   # Other scopes may use custom stacks.
