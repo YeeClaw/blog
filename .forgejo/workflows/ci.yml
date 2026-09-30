@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# One run per branch/PR; a new push cancels the older run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: smell-check
+    runs-on: node-alpine
+    env:
+      MIX_ENV: test
+    steps:
+      - run: apk add --no-cache elixir git
+
+      - uses: https://data.forgejo.org/actions/checkout@v4
+
+      - uses: https://data.forgejo.org/actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: mix-alpine-elixir1.19-${{ hashFiles('mix.lock') }}
+          restore-keys: mix-alpine-elixir1.19-
+
+      - run: mix local.hex --force
+      - run: mix local.rebar --force
+      - run: mix deps.get
+
+      - run: mix compile --warnings-as-errors
+      - run: mix format --check-formatted
+      - run: mix deps.unlock --check-unused
+      - run: mix test
