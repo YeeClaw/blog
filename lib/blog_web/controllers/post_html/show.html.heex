@@ -1,7 +1,7 @@
 <article id="post" class="mx-auto max-w-2xl px-4 py-12">
   <h1 id="post-title" class="text-3xl font-bold">{@post.title}</h1>
 
-  <div id="post-body" class="mt-6 whitespace-pre-line">{@post.body}</div>
+  <div id="post-body" class="mt-6">{raw(@body_html)}</div>
 
   <footer class="mt-12">
     <%!-- Plain string until #23 adds the route; then switch to ~p for a checked path. --%>

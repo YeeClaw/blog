@@ -13,7 +13,20 @@ defmodule BlogWeb.PostControllerTest do
       doc = conn |> get(~p"/posts/#{post.slug}") |> html_response(200) |> LazyHTML.from_document()
 
       assert doc |> LazyHTML.query("#post-title") |> LazyHTML.text() == "Hello World"
-      assert doc |> LazyHTML.query("#post-body") |> LazyHTML.text() == "First post."
+      assert doc |> LazyHTML.query("#post-body") |> LazyHTML.text() =~ "First post."
+    end
+
+    test "handles markdown", %{conn: conn} do
+      {:ok, post} =
+        Posts.create_post(%{
+          "title" => "Markdown Post",
+          "body" => "## Hello, world!\n\n<script>something malicious</script"
+        })
+
+      doc = conn |> get(~p"/posts/#{post.slug}") |> html_response(200) |> LazyHTML.from_document()
+
+      assert doc |> LazyHTML.query("#post-body h2") |> LazyHTML.text() =~ "Hello, world!"
+      assert doc |> LazyHTML.query("#post-body script") |> Enum.empty?()
     end
 
     test "links to the discussion page", %{conn: conn, post: post} do
